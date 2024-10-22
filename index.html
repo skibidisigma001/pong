@@ -56,7 +56,18 @@
 
             // Bounce the ball off the player's paddle
             if (ballX <= paddleWidth && ballY > playerY && ballY < playerY + paddleHeight) {
-                ballSpeedX = -ballSpeedX;
+                // Calculate the angle based on where the ball hits the paddle
+                const hitPosition = ballY - (playerY + paddleHeight / 2);
+                const normalizedHitPosition = hitPosition / (paddleHeight / 2); // Normalize to range [-1, 1]
+                const angle = normalizedHitPosition * Math.PI / 4; // Angle range [-45, 45] degrees in radians
+
+                ballSpeedX = -ballSpeedX * Math.cos(angle);
+                ballSpeedY = ballSpeedY * Math.sin(angle);
+
+                // Adjust speed to keep it consistent
+                const speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
+                ballSpeedX = -Math.abs(speed * Math.cos(angle)); // Ensure the ball always moves to the left
+                ballSpeedY = speed * Math.sin(angle); // Adjust vertical speed based on angle
             }
 
             // Bounce the ball off the right wall (the "wall")
@@ -69,6 +80,7 @@
                 ballX = canvas.width / 2;
                 ballY = canvas.height / 2;
                 ballSpeedX = 4;  // Reset speed
+                ballSpeedY = 4;  // Reset speed
             }
         }
 
