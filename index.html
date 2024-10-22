@@ -11,7 +11,7 @@
             justify-content: center; 
             align-items: center; 
             height: 100vh; 
-            background-color: #fff;  /* White background for better visibility */
+            background-color: #fff;  /* White background */
             color: black;
         }
         canvas {
@@ -29,6 +29,7 @@
         let paddleWidth = 10, paddleHeight = 100;
         let playerX = 0, playerY = canvas.height / 2 - paddleHeight / 2;
         let ballSize = 10, ballX = canvas.width / 2, ballY = canvas.height / 2, ballSpeedX = 4, ballSpeedY = 4;
+        let speedIncreaseFactor = 1.05;  // Factor by which speed increases after each hit
 
         // Draw the paddle and ball
         function draw() {
@@ -56,7 +57,20 @@
 
             // Bounce the ball off the player's paddle
             if (ballX <= paddleWidth && ballY > playerY && ballY < playerY + paddleHeight) {
-                ballSpeedX = -ballSpeedX;
+                let relativeIntersectY = (playerY + (paddleHeight / 2)) - (ballY + (ballSize / 2));
+                let normalizedRelativeIntersectionY = relativeIntersectY / (paddleHeight / 2);
+                let bounceAngle = normalizedRelativeIntersectionY * (Math.PI / 4); // Max bounce angle of 45 degrees
+
+                // Update the ball's X and Y speeds based on the bounce angle
+                ballSpeedX = Math.abs(ballSpeedX) * Math.cos(bounceAngle);  // Ensure it bounces in the right direction
+                ballSpeedY = ballSpeedX * Math.sin(bounceAngle);            // Adjust Y speed based on angle
+
+                // Increase speed after each paddle hit
+                ballSpeedX *= speedIncreaseFactor;
+                ballSpeedY *= speedIncreaseFactor;
+
+                // Make sure ball is always moving toward the right after a hit
+                ballSpeedX = -ballSpeedX; 
             }
 
             // Bounce the ball off the right wall (the "wall")
@@ -69,6 +83,7 @@
                 ballX = canvas.width / 2;
                 ballY = canvas.height / 2;
                 ballSpeedX = 4;  // Reset speed
+                ballSpeedY = 4;  // Reset speed
             }
         }
 
